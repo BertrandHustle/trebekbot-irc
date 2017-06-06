@@ -204,8 +204,8 @@ class Host:
         else:
             # remove casing, whitespace, punctuation, and articles
             # thanks to Ants Aasma on stack overflow for this solution
-            given_answer = sub(r'\W+|an|the|^a\W', '', given_answer).lower()
-            correct_answer = sub(r'\W+|an|the|^a\W', '', correct_answer).lower()
+            given_answer = sub(r'(?i)\W+|an|the|^a\W', '', given_answer).lower()
+            correct_answer = sub(r'(?i)\W+|an|the|^a\W', '', correct_answer).lower()
             # count how many mismatched letters we have
             error_count = 0
             error_ratio = len(correct_answer)/8
