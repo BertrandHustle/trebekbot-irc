@@ -37,6 +37,7 @@ class db(object):
         cursor = self.connection.cursor()
     '''
 
+    # TODO: when this inits it should add all users currently in channel
     def create_table_users(self, connection):
         cursor = connection.cursor()
         # TODO: Fix this to avoid injection attacks
@@ -108,10 +109,16 @@ class db(object):
     :param score_change: the amount by which we will change the user's score
     '''
     def update_score(self, connection, user, score_change):
+        # UPDATE USERS SET SCORE = SCORE + ? WHERE NAME = ?
         cursor = connection.cursor()
         cursor.execute(
         '''
-        UPDATE USERS SET SCORE = SCORE + ? WHERE NAME = ?
-        ''', (score_change, user)
+        UPDATE USERS
+        SET SCORE = CASE
+        WHEN (SCORE + ?) >= -10000 THEN (SCORE + ?)
+        ELSE SCORE
+        END
+        WHERE NAME = ?
+        ''', (score_change, score_change, user)
         )
         self.connection.commit()

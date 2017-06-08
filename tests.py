@@ -112,7 +112,8 @@ def test_strip_answer(test_value, expected_value):
  ('amber alert', 'an Amber alert', True),
  ('the good Samaritan', 'The Good Samaritan', True),
  ('it’s a wonderful life', 'It\'s A Wonderful Life', True),
- ('Hall and Oates', 'Hall & Oates', True)
+ ('Hall and Oates', 'Hall & Oates', True),
+ ('comedy of errors', 'The Comedy of Errors', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
@@ -140,16 +141,29 @@ def test_add_user_to_db():
 @pytest.mark.parametrize("user, value_change, expected_result", [
  ('LaVar', '0', 0),
  ('LaVar', '-200', -200),
+ ('LaVar', '-200', -400),
  ('Stemp', 'Invalid Value', 0),
- # TODO: fix this so it ignores SQL integrity error
- ('boop', '-10511', -10000)
+ ('boop', '-9000', -9000),
+ ('boop', '-500', -9500)
  # TODO: add more exceptions here
  # ('LaVar', 'ants', False)
 ])
-def test_update_score(user, value_change, expected_result, scrub_test_users):
+def test_update_score(user, value_change, expected_result):
     test_db.add_user_to_db(test_db.connection, user)
     test_db.update_score(test_db.connection, user, value_change)
     assert test_db.return_score(test_db.connection, user) == expected_result
+'''
+redundant, but making sure the test itself
+was working properly w/parametrization
+'''
+def test_test_update_score(scrub_test_users):
+    test_db.add_user_to_db(test_db.connection, 'test')
+    test_db.update_score(test_db.connection, 'test', '500')
+    assert test_db.return_score(test_db.connection, 'test') == 500
+    test_db.update_score(test_db.connection, 'test', '-5000')
+    assert test_db.return_score(test_db.connection, 'test') == -4500
+    test_db.update_score(test_db.connection, 'test', '-100000')
+    assert test_db.return_score(test_db.connection, 'test') == -4500
 
 def test_return_top_ten(populate_db, scrub_test_users):
     expected_list = [
